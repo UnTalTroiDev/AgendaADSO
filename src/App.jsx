@@ -9,7 +9,7 @@
 
 import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
-import { app, routes } from './config'
+import { app, routes, api as apiConfig } from './config'
 import FormularioContacto from './components/FormularioContacto'
 import ContactoCard from './components/ContactoCard'
 import { listarContactos, crearContacto, eliminarContactoPorId } from './api'
@@ -70,6 +70,19 @@ function App() {
     if (rutaActual === routes.errorUser) return
     let cancelado = false
     setCargando(true)
+
+    const baseUrl = apiConfig.getBaseUrl()
+    if (!baseUrl) {
+      // Sin API configurada (p. ej. Vercel sin backend): usar solo localStorage desde el inicio
+      if (!cancelado) {
+        setContactos(getContactosLocal())
+        setUseLocalStorage(true)
+        setCargando(false)
+        toast(app.storageLocalNotice, { icon: '💾', duration: 4000 })
+      }
+      return () => { cancelado = true }
+    }
+
     listarContactos()
       .then((data) => {
         if (!cancelado) {
