@@ -1,18 +1,1 @@
-{
-  "contactos": [
-    {
-      "id": "dea9",
-      "nombre": "Alejandro Roque Morales",
-      "telefono": "3043587224",
-      "email": "roquealejandro1521@gmail.com",
-      "empresa": "Brute"
-    },
-    {
-      "id": "ae36",
-      "nombre": "Hemery Perez Correa",
-      "telefono": "3184874469",
-      "email": "hemper1a2007@gmail.com",
-      "empresa": "NovaMaker3D"
-    }
-  ]
-}
+{"contactos":[]}

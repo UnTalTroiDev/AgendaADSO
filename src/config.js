@@ -48,6 +48,8 @@ export const app = {
   deleteButtonLabel: 'Eliminar',
   /** Prefijo para el campo empresa en la tarjeta (ej. "Empresa: Acme"). */
   empresaLabel: 'Empresa',
+  /** Aviso cuando se usa almacenamiento local (sin API). */
+  storageLocalNotice: 'Los datos se guardan en este dispositivo.',
 }
 
 /** Rutas de la SPA (para navegación y pantallas especiales). */

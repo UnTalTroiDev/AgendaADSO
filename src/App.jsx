@@ -3,8 +3,8 @@
  *
  * Componente raíz de la aplicación. Responsabilidades:
  * - Sincronizar ruta (popstate) y mostrar agenda o pantalla de error según la URL.
- * - Cargar contactos al montar, agregar y eliminar; mostrar toasts y mensajes desde config.
- * - No contiene URLs ni textos quemados: usa config.js para título, subtítulo y mensajes.
+ * - Cargar contactos al montar: intenta API; si falla, usa localStorage (fallback para deploy sin backend).
+ * - Agregar y eliminar contactos vía API o localStorage según disponibilidad.
  */
 
 import { useState, useEffect } from 'react'
@@ -13,6 +13,7 @@ import { app, routes } from './config'
 import FormularioContacto from './components/FormularioContacto'
 import ContactoCard from './components/ContactoCard'
 import { listarContactos, crearContacto, eliminarContactoPorId } from './api'
+import { getContactos as getContactosLocal, addContacto as addContactoLocal, removeContacto as removeContactoLocal } from './utils/localStore'
 import { OPERATION_MESSAGES } from './utils/apiErrorHandler'
 
 function LayoutHeader() {
@@ -52,6 +53,8 @@ function App() {
   const [rutaActual, setRutaActual] = useState(() => window.location.pathname)
   const [contactos, setContactos] = useState([])
   const [cargando, setCargando] = useState(true)
+  /** true cuando la API no está disponible y se usa localStorage (p. ej. deploy Vercel sin backend). */
+  const [useLocalStorage, setUseLocalStorage] = useState(false)
 
   useEffect(() => {
     const handler = () => setRutaActual(window.location.pathname)
@@ -69,12 +72,17 @@ function App() {
     setCargando(true)
     listarContactos()
       .then((data) => {
-        if (!cancelado) setContactos(Array.isArray(data) ? data : [])
-      })
-      .catch((err) => {
         if (!cancelado) {
-          toast.error(err.message || OPERATION_MESSAGES.list)
-          setContactos([])
+          setContactos(Array.isArray(data) ? data : [])
+          setUseLocalStorage(false)
+        }
+      })
+      .catch(() => {
+        if (!cancelado) {
+          const local = getContactosLocal()
+          setContactos(local)
+          setUseLocalStorage(true)
+          toast(app.storageLocalNotice, { icon: '💾', duration: 4000 })
         }
       })
       .finally(() => {
@@ -84,6 +92,12 @@ function App() {
   }, [rutaActual])
 
   const agregarContacto = async (nuevo) => {
+    if (useLocalStorage) {
+      const creado = addContactoLocal(nuevo)
+      setContactos((prev) => [...prev, creado])
+      toast.success(app.toastAdded)
+      return
+    }
     try {
       const creado = await crearContacto(nuevo)
       setContactos((prev) => [...prev, creado])
@@ -94,6 +108,12 @@ function App() {
   }
 
   const eliminarContacto = async (id) => {
+    if (useLocalStorage) {
+      removeContactoLocal(id)
+      setContactos((prev) => prev.filter((c) => String(c.id) !== String(id)))
+      toast.success(app.toastDeleted)
+      return
+    }
     try {
       await eliminarContactoPorId(id)
       setContactos((prev) => prev.filter((c) => String(c.id) !== String(id)))
