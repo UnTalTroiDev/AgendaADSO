@@ -58,6 +58,12 @@ export const app = {
   sortLabelDesc: 'Orden Z-A',
   /** Mensaje cuando la búsqueda no devuelve resultados. */
   searchNoResults: 'Ningún contacto coincide con la búsqueda.',
+  /** Prefijo del contador de resultados (ej. "Mostrando 3 contactos"). */
+  showingCountPrefix: 'Mostrando',
+  /** Sustantivo en singular para el contador. */
+  contactoSingular: 'contacto',
+  /** Sustantivo en plural para el contador. */
+  contactoPlural: 'contactos',
 }
 
 /** Rutas de la SPA (para navegación y pantallas especiales). */

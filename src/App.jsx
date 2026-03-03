@@ -190,6 +190,13 @@ function App() {
               {ordenAsc ? app.sortLabelAsc : app.sortLabelDesc}
             </button>
           </div>
+          {!cargando && (
+            <p className="text-sm text-gray-600 mb-4" aria-live="polite">
+              {app.showingCountPrefix}{' '}
+              {contactosOrdenados.length}{' '}
+              {contactosOrdenados.length === 1 ? app.contactoSingular : app.contactoPlural}
+            </p>
+          )}
           <div className="space-y-3">
             {cargando ? (
               <p className="text-gray-500 py-8 text-center rounded-lg bg-white border border-gray-200">
