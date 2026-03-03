@@ -55,6 +55,10 @@ function App() {
   const [cargando, setCargando] = useState(true)
   /** true cuando la API no está disponible y se usa localStorage (p. ej. deploy Vercel sin backend). */
   const [useLocalStorage, setUseLocalStorage] = useState(false)
+  /** Texto de búsqueda para filtrar contactos (case-insensitive). */
+  const [busqueda, setBusqueda] = useState('')
+  /** true = orden ascendente (A-Z), false = descendente (Z-A) por nombre. */
+  const [ordenAsc, setOrdenAsc] = useState(true)
 
   useEffect(() => {
     const handler = () => setRutaActual(window.location.pathname)
@@ -136,6 +140,27 @@ function App() {
     }
   }
 
+  const terminoBusqueda = busqueda.trim().toLowerCase()
+  const contactosFiltrados = contactos.filter((c) => {
+    if (!terminoBusqueda) return true
+    const nombre = (c.nombre ?? '').toLowerCase()
+    const telefono = (c.telefono ?? '').toLowerCase()
+    const email = (c.email ?? '').toLowerCase()
+    const empresa = (c.empresa ?? '').toLowerCase()
+    return (
+      nombre.includes(terminoBusqueda) ||
+      telefono.includes(terminoBusqueda) ||
+      email.includes(terminoBusqueda) ||
+      empresa.includes(terminoBusqueda)
+    )
+  })
+  const contactosOrdenados = [...contactosFiltrados].sort((a, b) => {
+    const na = (a.nombre ?? '').toLowerCase()
+    const nb = (b.nombre ?? '').toLowerCase()
+    const cmp = na.localeCompare(nb, 'es')
+    return ordenAsc ? cmp : -cmp
+  })
+
   if (rutaActual === routes.errorUser) return <PaginaErrorUsuario />
 
   return (
@@ -147,6 +172,24 @@ function App() {
           <h2 className="text-lg font-semibold text-gray-800 mb-4">
             {app.sectionListTitle} ({contactos.length})
           </h2>
+          <div className="flex flex-col sm:flex-row gap-3 mb-4">
+            <input
+              type="search"
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              placeholder={app.searchPlaceholder}
+              className="flex-1 min-w-0 px-4 py-2 rounded-lg border border-gray-300 bg-white shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition text-gray-900"
+              aria-label="Buscar contactos"
+            />
+            <button
+              type="button"
+              onClick={() => setOrdenAsc((prev) => !prev)}
+              className="shrink-0 px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 font-medium shadow-sm hover:bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition"
+              aria-pressed={!ordenAsc}
+            >
+              {ordenAsc ? app.sortLabelAsc : app.sortLabelDesc}
+            </button>
+          </div>
           <div className="space-y-3">
             {cargando ? (
               <p className="text-gray-500 py-8 text-center rounded-lg bg-white border border-gray-200">
@@ -156,8 +199,12 @@ function App() {
               <p className="text-gray-500 py-8 text-center rounded-lg bg-white border border-gray-200">
                 {app.emptyListText}
               </p>
+            ) : contactosOrdenados.length === 0 ? (
+              <p className="text-gray-500 py-8 text-center rounded-lg bg-white border border-gray-200">
+                {app.searchNoResults}
+              </p>
             ) : (
-              contactos.map((c) => (
+              contactosOrdenados.map((c) => (
                 <ContactoCard
                   key={c.id}
                   contacto={c}

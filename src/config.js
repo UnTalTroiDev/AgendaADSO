@@ -50,6 +50,14 @@ export const app = {
   empresaLabel: 'Empresa',
   /** Aviso cuando se usa almacenamiento local (sin API). */
   storageLocalNotice: 'Los datos se guardan en este dispositivo.',
+  /** Placeholder del input de búsqueda. */
+  searchPlaceholder: 'Buscar por nombre, teléfono, email o empresa…',
+  /** Botón de ordenamiento (ascendente). */
+  sortLabelAsc: 'Orden A-Z',
+  /** Botón de ordenamiento (descendente). */
+  sortLabelDesc: 'Orden Z-A',
+  /** Mensaje cuando la búsqueda no devuelve resultados. */
+  searchNoResults: 'Ningún contacto coincide con la búsqueda.',
 }
 
 /** Rutas de la SPA (para navegación y pantallas especiales). */
