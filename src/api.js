@@ -116,3 +116,27 @@ export async function eliminarContactoPorId(id) {
     throw new Error(message)
   }
 }
+
+/** PUT – Actualizar contacto por ID (con reintentos en fallo de red). */
+export async function actualizarContacto(id, data) {
+  const url = `${getContactosBaseUrl()}/${id}`
+  let response = null
+  try {
+    response = await fetchWithRetry(url, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, ...data }),
+    })
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    return response.json()
+  } catch (err) {
+    const { message } = handleApiError(err, {
+      response: response ?? null,
+      endpoint: `${apiConfig.contactosPath}/${id}`,
+      method: 'PUT',
+      payload: data,
+      operation: 'update',
+    })
+    throw new Error(message)
+  }
+}

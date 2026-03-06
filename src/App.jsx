@@ -12,8 +12,8 @@ import toast from 'react-hot-toast'
 import { app, routes, api as apiConfig } from './config'
 import FormularioContacto from './components/FormularioContacto'
 import ContactoCard from './components/ContactoCard'
-import { listarContactos, crearContacto, eliminarContactoPorId } from './api'
-import { getContactos as getContactosLocal, addContacto as addContactoLocal, removeContacto as removeContactoLocal } from './utils/localStore'
+import { listarContactos, crearContacto, eliminarContactoPorId, actualizarContacto } from './api'
+import { getContactos as getContactosLocal, addContacto as addContactoLocal, removeContacto as removeContactoLocal, updateContacto as updateContactoLocal } from './utils/localStore'
 import { OPERATION_MESSAGES } from './utils/apiErrorHandler'
 
 function LayoutHeader() {
@@ -59,6 +59,8 @@ function App() {
   const [busqueda, setBusqueda] = useState('')
   /** true = orden ascendente (A-Z), false = descendente (Z-A) por nombre. */
   const [ordenAsc, setOrdenAsc] = useState(true)
+  /** Contacto en edición: cuando el usuario hace clic en Editar, se guarda aquí y se pasa al formulario. */
+  const [contactoEnEdicion, setContactoEnEdicion] = useState(null)
 
   useEffect(() => {
     const handler = () => setRutaActual(window.location.pathname)
@@ -140,6 +142,32 @@ function App() {
     }
   }
 
+  const editarContacto = (contacto) => {
+    setContactoEnEdicion(contacto)
+  }
+
+  const actualizarContactoHandler = async (datos) => {
+    const { id, ...resto } = datos
+    if (!id) return
+    if (useLocalStorage) {
+      const actualizado = updateContactoLocal(id, resto)
+      if (actualizado) {
+        setContactos((prev) => prev.map((c) => (String(c.id) === String(id) ? actualizado : c)))
+        setContactoEnEdicion(null)
+        toast.success(app.toastUpdated)
+      }
+      return
+    }
+    try {
+      const actualizado = await actualizarContacto(id, resto)
+      setContactos((prev) => prev.map((c) => (String(c.id) === String(id) ? actualizado : c)))
+      setContactoEnEdicion(null)
+      toast.success(app.toastUpdated)
+    } catch (err) {
+      toast.error(err.message || OPERATION_MESSAGES.update)
+    }
+  }
+
   const terminoBusqueda = busqueda.trim().toLowerCase()
   const contactosFiltrados = contactos.filter((c) => {
     if (!terminoBusqueda) return true
@@ -167,7 +195,12 @@ function App() {
     <div className="min-h-screen bg-gray-100 text-gray-900">
       <LayoutHeader />
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-8">
-        <FormularioContacto onAgregar={agregarContacto} />
+        <FormularioContacto
+          contactoEnEdicion={contactoEnEdicion}
+          onAgregar={agregarContacto}
+          onActualizar={actualizarContactoHandler}
+          onCancelarEdicion={() => setContactoEnEdicion(null)}
+        />
         <section>
           <h2 className="text-lg font-semibold text-gray-800 mb-4">
             {app.sectionListTitle} ({contactos.length})
@@ -215,6 +248,7 @@ function App() {
                 <ContactoCard
                   key={c.id}
                   contacto={c}
+                  onEditar={editarContacto}
                   onEliminar={eliminarContacto}
                 />
               ))

@@ -22,6 +22,7 @@ export const ERROR_MESSAGES = {
 export const OPERATION_MESSAGES = {
   list: 'No pudimos cargar los contactos. Intenta nuevamente más tarde.',
   create: 'Ocurrió un problema de conexión. No se pudo agregar el contacto.',
+  update: 'Ocurrió un problema de conexión. No se pudo actualizar el contacto.',
   delete: 'Ocurrió un problema de conexión. No se pudo eliminar el contacto.',
 }
 

@@ -40,12 +40,22 @@ export const app = {
   toastAdded: 'Contacto agregado.',
   /** Toast al eliminar un contacto. */
   toastDeleted: 'Contacto eliminado.',
+  /** Toast al actualizar un contacto. */
+  toastUpdated: 'Contacto actualizado.',
   /** Título del formulario de nuevo contacto. */
   formTitle: 'Nuevo contacto',
+  /** Título del formulario al editar. */
+  formTitleEdit: 'Editar contacto',
   /** Etiqueta del botón enviar del formulario. */
   submitLabel: 'Agregar contacto',
+  /** Etiqueta del botón al actualizar. */
+  submitLabelUpdate: 'Actualizar contacto',
   /** Etiqueta del botón eliminar en cada tarjeta. */
   deleteButtonLabel: 'Eliminar',
+  /** Etiqueta del botón editar en cada tarjeta. */
+  editButtonLabel: 'Editar',
+  /** Etiqueta del botón cancelar edición. */
+  cancelLabel: 'Cancelar',
   /** Prefijo para el campo empresa en la tarjeta (ej. "Empresa: Acme"). */
   empresaLabel: 'Empresa',
   /** Aviso cuando se usa almacenamiento local (sin API). */

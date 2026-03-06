@@ -49,3 +49,14 @@ export function removeContacto(id) {
   const contactos = read().filter((c) => String(c.id) !== String(id))
   write(contactos)
 }
+
+/** Actualiza el contacto con el id dado y persiste. Devuelve el contacto actualizado. */
+export function updateContacto(id, datos) {
+  const contactos = read()
+  const index = contactos.findIndex((c) => String(c.id) === String(id))
+  if (index === -1) return null
+  const actualizado = { ...contactos[index], ...datos }
+  contactos[index] = actualizado
+  write(contactos)
+  return actualizado
+}
