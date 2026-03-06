@@ -52,6 +52,8 @@ export const app = {
   submitLabelUpdate: 'Actualizar contacto',
   /** Etiqueta del botón eliminar en cada tarjeta. */
   deleteButtonLabel: 'Eliminar',
+  /** Mensaje del cuadro de confirmación al eliminar (se usa con el nombre: ¿Eliminar a {nombre}?). */
+  deleteConfirmMessage: '¿Eliminar a {nombre}? Esta acción no se puede deshacer.',
   /** Etiqueta del botón editar en cada tarjeta. */
   editButtonLabel: 'Editar',
   /** Etiqueta del botón cancelar edición. */

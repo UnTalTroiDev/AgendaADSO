@@ -142,6 +142,14 @@ function App() {
     }
   }
 
+  const eliminarContactoConConfirmacion = (id) => {
+    const contacto = contactos.find((c) => String(c.id) === String(id))
+    const nombre = contacto?.nombre ?? 'este contacto'
+    const mensaje = app.deleteConfirmMessage.replace('{nombre}', nombre)
+    if (!window.confirm(mensaje)) return
+    eliminarContacto(id)
+  }
+
   const editarContacto = (contacto) => {
     setContactoEnEdicion(contacto)
   }
@@ -249,7 +257,7 @@ function App() {
                   key={c.id}
                   contacto={c}
                   onEditar={editarContacto}
-                  onEliminar={eliminarContacto}
+                  onEliminar={eliminarContactoConConfirmacion}
                 />
               ))
             )}
