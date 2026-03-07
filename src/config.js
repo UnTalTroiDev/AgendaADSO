@@ -76,6 +76,40 @@ export const app = {
   contactoSingular: 'contacto',
   /** Sustantivo en plural para el contador. */
   contactoPlural: 'contactos',
+  /** Barra superior: texto del logo (letra A). */
+  headerLogoLabel: 'A',
+  /** Barra superior: referencia a la ficha. */
+  headerFichaReference: 'Ficha',
+  /** Barra superior: referencia SENA. */
+  headerSenaReference: 'SENA CTMA',
+  /** Panel lateral: título de estadísticas. */
+  panelStatsTitle: 'Estadísticas',
+  /** Panel lateral: etiqueta total contactos. */
+  panelStatsTotal: 'Total contactos',
+  /** Panel lateral: etiqueta contactos con empresa. */
+  panelStatsConEmpresa: 'Con empresa',
+  /** Panel lateral: etiqueta visible ahora (filtrados). */
+  panelStatsVisible: 'Visible ahora',
+  /** Panel lateral: título de tips. */
+  panelTipsTitle: 'Tips',
+  /** Panel lateral: tips útiles (array de strings). */
+  panelTips: [
+    'Usa la búsqueda para filtrar por nombre, teléfono, email o empresa.',
+    'Haz clic en Editar para modificar un contacto sin borrarlo.',
+    'El botón A-Z / Z-A ordena la lista por nombre.',
+  ],
+  /** Pestaña/vista: crear nuevo contacto. */
+  viewLabelCrear: 'Crear',
+  /** Pestaña/vista: lista de contactos. */
+  viewLabelContactos: 'Contactos',
+  /** Encabezado de la tarjeta principal en modo creación. */
+  viewModoCreacion: 'Modo creación',
+  /** Encabezado de la tarjeta principal en modo contactos. */
+  viewModoContactos: 'Modo contactos',
+  /** Botón para ir a la vista contactos (visible en vista crear). */
+  viewButtonVerContactos: 'Ver contactos',
+  /** Botón para volver a la vista crear (visible en vista contactos). */
+  viewButtonVolverACrear: 'Volver a crear contacto',
 }
 
 /** Rutas de la SPA (para navegación y pantallas especiales). */

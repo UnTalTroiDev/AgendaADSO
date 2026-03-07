@@ -16,27 +16,86 @@ import { listarContactos, crearContacto, eliminarContactoPorId, actualizarContac
 import { getContactos as getContactosLocal, addContacto as addContactoLocal, removeContacto as removeContactoLocal, updateContacto as updateContactoLocal } from './utils/localStore'
 import { OPERATION_MESSAGES } from './utils/apiErrorHandler'
 
-function LayoutHeader() {
+function LayoutHeader({ vista, onCambiarVista }) {
+  const esCrear = vista === 'crear'
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200">
-      <div className="max-w-4xl mx-auto px-4 py-6">
-        <h1 className="text-2xl font-bold text-gray-800">{app.title}</h1>
-        <p className="text-sm text-gray-600 mt-1">{app.subtitle}</p>
+    <header className="fixed top-0 left-0 right-0 z-50 bg-slate-800/95 backdrop-blur-md border-b border-slate-600/50 shadow-xl">
+      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-4 flex-wrap">
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-xl bg-indigo-500 flex items-center justify-center text-white font-bold text-2xl shadow-lg ring-2 ring-white/20">
+            {app.headerLogoLabel}
+          </div>
+          <div>
+            <h1 className="text-lg font-bold text-white tracking-tight">{app.title}</h1>
+            <p className="text-xs text-slate-300">
+              {app.subtitle} · {app.headerFichaReference} · {app.headerSenaReference}
+            </p>
+          </div>
+        </div>
+        {typeof onCambiarVista === 'function' && (
+          <div className="ml-auto">
+            <button
+              type="button"
+              onClick={onCambiarVista}
+              className="px-4 py-2 rounded-lg bg-indigo-500 text-white text-sm font-medium shadow hover:bg-indigo-600 focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-slate-800 transition"
+            >
+              {esCrear ? app.viewButtonVerContactos : app.viewButtonVolverACrear}
+            </button>
+          </div>
+        )}
       </div>
     </header>
   )
 }
 
+function PanelLateral({ contactos, contactosOrdenados }) {
+  const total = contactos.length
+  const conEmpresa = contactos.filter((c) => (c.empresa ?? '').trim()).length
+  return (
+    <aside className="space-y-6">
+      <div className="rounded-xl bg-white/10 backdrop-blur border border-white/10 p-4 shadow-xl">
+        <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-3">
+          {app.panelStatsTitle}
+        </h3>
+        <dl className="space-y-2 text-sm">
+          <div className="flex justify-between text-slate-300">
+            <span>{app.panelStatsTotal}</span>
+            <span className="font-semibold text-white">{total}</span>
+          </div>
+          <div className="flex justify-between text-slate-300">
+            <span>{app.panelStatsConEmpresa}</span>
+            <span className="font-semibold text-white">{conEmpresa}</span>
+          </div>
+          <div className="flex justify-between text-slate-300">
+            <span>{app.panelStatsVisible}</span>
+            <span className="font-semibold text-white">{contactosOrdenados.length}</span>
+          </div>
+        </dl>
+      </div>
+      <div className="rounded-xl bg-white/10 backdrop-blur border border-white/10 p-4 shadow-xl">
+        <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-3">
+          {app.panelTipsTitle}
+        </h3>
+        <ul className="space-y-2 text-sm text-slate-300 list-disc list-inside">
+          {app.panelTips.map((tip, i) => (
+            <li key={i}>{tip}</li>
+          ))}
+        </ul>
+      </div>
+    </aside>
+  )
+}
+
 function PaginaErrorUsuario() {
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 text-slate-100">
       <LayoutHeader />
-      <main className="max-w-4xl mx-auto px-4 py-8">
-        <div className="rounded-lg bg-red-50 border border-red-200 overflow-hidden">
-          <div className="px-4 py-3 text-red-700 text-sm">
+      <main className="pt-[4.5rem] max-w-4xl mx-auto px-4 py-8">
+        <div className="rounded-xl bg-red-900/30 border border-red-400/30 overflow-hidden backdrop-blur">
+          <div className="px-4 py-3 text-red-200 text-sm">
             {OPERATION_MESSAGES.list}
           </div>
-          <div className="p-4 flex justify-center bg-white">
+          <div className="p-4 flex justify-center bg-slate-800/50">
             <img
               src="/images/erroruxuser.png"
               alt="Error de conexión"
@@ -61,6 +120,17 @@ function App() {
   const [ordenAsc, setOrdenAsc] = useState(true)
   /** Contacto en edición: cuando el usuario hace clic en Editar, se guarda aquí y se pasa al formulario. */
   const [contactoEnEdicion, setContactoEnEdicion] = useState(null)
+  /** Vista activa: "crear" (solo formulario) o "contactos" (listado y gestión). Solo modifica estado local, sin rutas. */
+  const [vista, setVista] = useState('crear')
+
+  /** Cambia a la vista contactos para mostrar la lista completa. */
+  const irAVerContactos = () => setVista('contactos')
+  /** Vuelve a la vista crear y limpia búsqueda y edición activa. */
+  const irACrearContacto = () => {
+    setBusqueda('')
+    setContactoEnEdicion(null)
+    setVista('crear')
+  }
 
   useEffect(() => {
     const handler = () => setRutaActual(window.location.pathname)
@@ -200,69 +270,109 @@ function App() {
   if (rutaActual === routes.errorUser) return <PaginaErrorUsuario />
 
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-900">
-      <LayoutHeader />
-      <main className="max-w-4xl mx-auto px-4 py-8 space-y-8">
-        <FormularioContacto
-          contactoEnEdicion={contactoEnEdicion}
-          onAgregar={agregarContacto}
-          onActualizar={actualizarContactoHandler}
-          onCancelarEdicion={() => setContactoEnEdicion(null)}
-        />
-        <section>
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">
-            {app.sectionListTitle} ({contactos.length})
-          </h2>
-          <div className="flex flex-col sm:flex-row gap-3 mb-4">
-            <input
-              type="search"
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-              placeholder={app.searchPlaceholder}
-              className="flex-1 min-w-0 px-4 py-2 rounded-lg border border-gray-300 bg-white shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition text-gray-900"
-              aria-label="Buscar contactos"
-            />
-            <button
-              type="button"
-              onClick={() => setOrdenAsc((prev) => !prev)}
-              className="shrink-0 px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 font-medium shadow-sm hover:bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition"
-              aria-pressed={!ordenAsc}
-            >
-              {ordenAsc ? app.sortLabelAsc : app.sortLabelDesc}
-            </button>
-          </div>
-          {!cargando && (
-            <p className="text-sm text-gray-600 mb-4" aria-live="polite">
-              {app.showingCountPrefix}{' '}
-              {contactosOrdenados.length}{' '}
-              {contactosOrdenados.length === 1 ? app.contactoSingular : app.contactoPlural}
-            </p>
-          )}
-          <div className="space-y-3">
-            {cargando ? (
-              <p className="text-gray-500 py-8 text-center rounded-lg bg-white border border-gray-200">
-                {app.loadingText}
-              </p>
-            ) : contactos.length === 0 ? (
-              <p className="text-gray-500 py-8 text-center rounded-lg bg-white border border-gray-200">
-                {app.emptyListText}
-              </p>
-            ) : contactosOrdenados.length === 0 ? (
-              <p className="text-gray-500 py-8 text-center rounded-lg bg-white border border-gray-200">
-                {app.searchNoResults}
-              </p>
-            ) : (
-              contactosOrdenados.map((c) => (
-                <ContactoCard
-                  key={c.id}
-                  contacto={c}
-                  onEditar={editarContacto}
-                  onEliminar={eliminarContactoConConfirmacion}
-                />
-              ))
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 text-slate-100">
+      <LayoutHeader
+        vista={vista}
+        onCambiarVista={vista === 'crear' ? irAVerContactos : irACrearContacto}
+      />
+      <main className="pt-[4.5rem] max-w-7xl mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_minmax(280px,360px)] gap-8">
+          <div className="space-y-6">
+            {vista === 'crear' && (
+              <section className="rounded-xl bg-white/95 dark:bg-slate-800/95 backdrop-blur shadow-xl border border-white/10 overflow-hidden">
+                <div className="p-6">
+                  <h2 className="text-lg font-semibold text-gray-800 dark:text-slate-100 mb-4">
+                    {app.viewModoCreacion}
+                  </h2>
+                  <FormularioContacto
+                    contactoEnEdicion={null}
+                    onAgregar={agregarContacto}
+                    onActualizar={actualizarContactoHandler}
+                    onCancelarEdicion={() => {}}
+                  />
+                </div>
+              </section>
+            )}
+            {vista === 'contactos' && (
+              <>
+                {contactoEnEdicion != null && (
+                  <section className="rounded-xl bg-white/95 dark:bg-slate-800/95 backdrop-blur shadow-xl border border-white/10 overflow-hidden">
+                    <div className="p-6">
+                      <FormularioContacto
+                        contactoEnEdicion={contactoEnEdicion}
+                        onAgregar={agregarContacto}
+                        onActualizar={actualizarContactoHandler}
+                        onCancelarEdicion={() => setContactoEnEdicion(null)}
+                      />
+                    </div>
+                  </section>
+                )}
+                <section className="rounded-xl bg-white/95 dark:bg-slate-800/95 backdrop-blur shadow-xl border border-white/10 overflow-hidden">
+                  <div className="p-6">
+                    <h2 className="text-lg font-semibold text-gray-800 dark:text-slate-100 mb-4">
+                      {app.viewModoContactos}
+                    </h2>
+                    <p className="text-sm text-gray-600 dark:text-slate-400 mb-4">
+                      {app.sectionListTitle} ({contactos.length})
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                      <input
+                        type="search"
+                        value={busqueda}
+                        onChange={(e) => setBusqueda(e.target.value)}
+                        placeholder={app.searchPlaceholder}
+                        className="flex-1 min-w-0 px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+                        aria-label="Buscar contactos"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setOrdenAsc((prev) => !prev)}
+                        className="shrink-0 px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 font-medium shadow-sm hover:bg-gray-50 dark:hover:bg-slate-600 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition"
+                        aria-pressed={!ordenAsc}
+                      >
+                        {ordenAsc ? app.sortLabelAsc : app.sortLabelDesc}
+                      </button>
+                    </div>
+                    {!cargando && (
+                      <p className="text-sm text-gray-600 dark:text-slate-400 mb-4" aria-live="polite">
+                        {app.showingCountPrefix}{' '}
+                        {contactosOrdenados.length}{' '}
+                        {contactosOrdenados.length === 1 ? app.contactoSingular : app.contactoPlural}
+                      </p>
+                    )}
+                    <div className="space-y-3">
+                      {cargando ? (
+                        <p className="text-gray-500 dark:text-slate-400 py-8 text-center rounded-lg bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-slate-600">
+                          {app.loadingText}
+                        </p>
+                      ) : contactos.length === 0 ? (
+                        <p className="text-gray-500 dark:text-slate-400 py-8 text-center rounded-lg bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-slate-600">
+                          {app.emptyListText}
+                        </p>
+                      ) : contactosOrdenados.length === 0 ? (
+                        <p className="text-gray-500 dark:text-slate-400 py-8 text-center rounded-lg bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-slate-600">
+                          {app.searchNoResults}
+                        </p>
+                      ) : (
+                        contactosOrdenados.map((c) => (
+                          <ContactoCard
+                            key={c.id}
+                            contacto={c}
+                            onEditar={editarContacto}
+                            onEliminar={eliminarContactoConConfirmacion}
+                          />
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </section>
+              </>
             )}
           </div>
-        </section>
+          <aside className="lg:sticky lg:top-24 lg:self-start">
+            <PanelLateral contactos={contactos} contactosOrdenados={contactosOrdenados} />
+          </aside>
+        </div>
       </main>
     </div>
   )
