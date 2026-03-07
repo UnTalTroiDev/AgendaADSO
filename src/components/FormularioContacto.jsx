@@ -93,7 +93,7 @@ function FormularioContacto({ contactoEnEdicion, onAgregar, onActualizar, onCanc
   }
 
   const inputClassName = (hasError) =>
-    `w-full px-4 py-2 rounded-lg border bg-white shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition ${hasError ? 'border-red-500' : 'border-gray-300'}`
+    `w-full px-4 py-2 rounded-lg border bg-white text-black placeholder:text-gray-400 shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition [color-scheme:light] ${hasError ? 'border-red-500' : 'border-gray-300'}`
 
   const esEdicion = !!contactoEnEdicion
 
