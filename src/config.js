@@ -79,7 +79,7 @@ export const app = {
   /** Barra superior: texto del logo (letra A). */
   headerLogoLabel: 'A',
   /** Barra superior: referencia a la ficha. */
-  headerFichaReference: 'Ficha',
+  headerFichaReference: 'Ficha: 3229207',
   /** Barra superior: referencia SENA. */
   headerSenaReference: 'SENA CTMA',
   /** Panel lateral: título de estadísticas. */
