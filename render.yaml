@@ -1,0 +1,11 @@
+# Render Blueprint: API Agenda ADSO (JSON Server)
+# Conectar este repo en Render y usar "New > Blueprint" para desplegar.
+# La API quedará en https://agenda-adso-api.onrender.com (o el nombre que elijas).
+
+services:
+  - type: web
+    runtime: node
+    name: agenda-adso-api
+    rootDir: agenda-adso-api
+    buildCommand: npm install
+    startCommand: npm start
